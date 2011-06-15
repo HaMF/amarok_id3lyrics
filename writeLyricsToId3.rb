@@ -16,7 +16,7 @@ def writeLyrics(amarok_player)
         filename = filename[7,filename.length]
         filename = filename.gsub("%20", " ")
         if File.extname(filename) != ".mp3"
-          exit(1)
+          return false
         end
 
         # Load a tag from a file
@@ -39,8 +39,9 @@ def writeLyrics(amarok_player)
 
         # apply changes
         tag.update!
-
+         
         p "Wrote lyrics to " + filename
+        return true
 end
 
 # Connect to Amarok via dbus
