@@ -5,17 +5,18 @@ require 'dbus'
 def writeLyrics(amarok_player)
         # get the current songs metadata
         metadata = amarok_player.GetMetadata
-        metadata
         lyrics = metadata[0]["lyrics"]
         filename = metadata[0]["location"]
 
         if lyrics == nil
-            exit(1)
+            p "No lyrics received from amarok."
+            return false
         end
 
         filename = filename[7,filename.length]
         filename = filename.gsub("%20", " ")
         if File.extname(filename) != ".mp3"
+          p "Writing the lyrics tag failed because it's no mp3 file."
           return false
         end
 
@@ -26,7 +27,7 @@ def writeLyrics(amarok_player)
         tag.delete_if{ |frame| frame[:id] == :USLT }
 
         # prepare lyrics tag
-        lyrics = {
+        lyricsTag = {
           :id          => :USLT,
           :textenc     => 0, # gives ISO-8859-1
           :language    => 'eng',
@@ -35,7 +36,7 @@ def writeLyrics(amarok_player)
         }
 
         # add lyrics
-        tag << lyrics
+        tag << lyricsTag
 
         # apply changes
         tag.update!
@@ -58,7 +59,7 @@ amarok_player.on_signal("TrackChange") do |u|
     p "The track changed lets look for lyrics..."
 
     # Give amarok some time to fetch the lyrics
-    sleep(10)
+    sleep(3)
 
     # write the lyrics to the tag
     writeLyrics amarok_player

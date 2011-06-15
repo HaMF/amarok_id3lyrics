@@ -3,6 +3,9 @@ Purpose
 This script will delete all lyrics (:USLT) tags from the current playing track
 in Amarok 2 and writes a new one containing amaroks the cached lyrics.
 
+The script only works for tracks that are in your amarok collection because
+amarok does not return lyrics on dbus requests otherwise.
+
 Unfortunately it turns out that it's quite impossible to accomplish with an 
 Amarok 2 script due to limitations of the api. See
 http://forum.kde.org/viewtopic.php?f=117&t=90708
