@@ -45,6 +45,24 @@ def writeLyrics(amarok_player)
         return true
 end
 
+# Catch ctrl+c and exit displaying some statistics
+numSuccess = 0
+numFailed  = 0
+trap("SIGINT") {
+    puts "\n"
+    if numSuccess > 0
+        print "\nWrote lyrics for " + numSuccess.to_s + " songs. "
+    else
+        print "\nNo lyrics written. "
+    end
+
+    if numFailed > 0
+        print "\nFailed writing lyrics on " + numFailed.to_s + " song."
+    end
+    puts "\nBye!"
+    exit
+}
+
 # Connect to Amarok via dbus
 bus = DBus::SessionBus.instance
 amarok_service = bus.service("org.kde.amarok")
@@ -53,8 +71,7 @@ amarok_player.introspect
 amarok_player.default_iface = "org.freedesktop.MediaPlayer" 
 #puts amarok_player.to_yaml
 
-p "Registered to the amarok dbus service"
-
+p "Registered to the amarok dbus service."
 amarok_player.on_signal("TrackChange") do |u|
     p "The track changed lets look for lyrics..."
 
@@ -62,10 +79,15 @@ amarok_player.on_signal("TrackChange") do |u|
     sleep(3)
 
     # write the lyrics to the tag
-    writeLyrics amarok_player
+    if writeLyrics amarok_player
+      numSuccess = numSuccess + 1
+    else
+      numFailed = numSuccess + 1
+    end
 end
 
 loop = DBus::Main.new
 loop << bus
 loop.run
+
 
